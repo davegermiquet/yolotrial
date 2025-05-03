@@ -38,15 +38,15 @@ model = YOLO("yolo11n.pt")
 
 # Open the video file
 #video_path = "/dev/video4"
-video_path = "/home/david/Videos/FILE240306-072040F.MOV"
+#video_path = "/home/david/Videos/FILE240306-072040F.MOV"
 #video_path = "Videos/FILE240306-072040F.MOV"
-#url = "https://www.youtube.com/live/g9hNGJxw6Yw?si=wz1JulzVqTYxPV0x"
+url = "https://www.youtube.com/live/g9hNGJxw6Yw?si=wz1JulzVqTYxPV0x"
 #video = pafy.new(url)
 #best = video.getbest(preftype="mp4")
-#options = {"STREAM_RESOLUTION": "720p"}
-#cap = CamGear(
-#    source=url, stream_mode=True, logging=True, **options
-#).start()
+options = {"STREAM_RESOLUTION": "720p"}
+cap = CamGear(
+    source=url, stream_mode=True, logging=True, **options
+).start()
 
 def calculate_speed(car_speed,fps,point_distance):
     car_distance = abs(int(car_speed[2]) - int(car_speed[0]))
@@ -64,27 +64,28 @@ def capture_pointer(event,x,y,flags,params):
     elif event == cv2.EVENT_LBUTTONUP:
         amount_of_points.append((x,y))
 
-cap = cv2.VideoCapture(video_path)
+#cap = cv2.VideoCapture(video_path)
 cv2.namedWindow("image")
 cv2.setMouseCallback("image", capture_pointer)
-tframe = cap.get(cv2.CAP_PROP_FRAME_COUNT) # get total frame count
-fps = cap.get(cv2.CAP_PROP_FPS)  #get the FPS of the videos
+#tframe = cap.get(cv2.CAP_PROP_FRAME_COUNT) # get total frame count
+#fps = cap.get(cv2.CAP_PROP_FPS)  #get the FPS of the videos
 
 def drawbox(data,image,map):
     x1,y1,x2,y2,conf,id = data
     p1 = (int(x1),int(y1))
-    #cv2.putText(image,map[id],p1,cv2.FONT_HERSHEY_PLAIN,1,(0,0,255),3) 
+    cv2.putText(image,map[id],p1,cv2.FONT_HERSHEY_PLAIN,1,(0,0,255),3) 
     pass
 trackPoint = {}
 count = 0
 while True:
-    success, frame = cap.read()
+    #success, frame = cap.read()
+    frame = cap.read()
     count+=1
-    if count % 3 !=0:
-        continue
-    cframe = cap.get(cv2.CAP_PROP_POS_FRAMES) # retrieves the current frame number
-    if not success:
-        break
+    #if count % 3 !=0:
+    #    continue
+    #cframe = cap.get(cv2.CAP_PROP_POS_FRAMES) # retrieves the current frame number
+    #if not success:
+    #    break
     results = model(frame)
     result_list = []
     for r in results:
@@ -116,7 +117,7 @@ while True:
         bbox = track.to_ltrb()
         car[track.track_id] = {}
         car[track.track_id]['coord'] = bbox
-        #cv2.putText(frame, "     " +str(track.track_id), (int(bbox[0]),int(bbox[1])),cv2.FONT_HERSHEY_PLAIN,1,(0,255,0),3)
+        cv2.putText(frame, "     " +str(track.track_id), (int(bbox[0]),int(bbox[1])),cv2.FONT_HERSHEY_PLAIN,1,(0,255,0),3)
     
     if len(amount_of_points) > 3:
         print(f'{amount_of_points[0][0]} {amount_of_points[3][0]}')
@@ -169,5 +170,5 @@ while True:
 
 
 # Release the video capture object and close the display window
-cap.release()
+#cap.release()
 cv2.destroyAllWindows()
